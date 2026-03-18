@@ -1,0 +1,7 @@
+name: medinsight-azure-app-service
+description: MedInsight Azure App Service Demo
+runtime: dotnet
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: azure-csharp

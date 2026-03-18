@@ -1,0 +1,6 @@
+config:
+  azure-native:location: westus2
+  medinsight-azure-app-service:appName: pulumi-medinsight
+environment:
+  - shared/azure-dev
+  - shared/azure-dev
