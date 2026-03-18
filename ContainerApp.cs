@@ -103,12 +103,41 @@ namespace MedInsightAzureAppService
                 HttpsOnly = true,
             }, new CustomResourceOptions { Parent = this });
 
+            var stagingSlot = new WebAppSlot($"{name}-staging-slot", new WebAppSlotArgs
+            {
+                ResourceGroupName = args.ResourceGroupName,
+                Name = App.Name,
+                Slot = "staging",
+                ServerFarmId = AppServicePlan.Id,
+                Kind = "app,linux,container",
+                SiteConfig = new SiteConfigArgs
+                {
+                    LinuxFxVersion = args.Image.Apply(img => $"DOCKER|{img}"),
+                    AlwaysOn = false,
+                    AppSettings = appSettings.Apply(settings =>
+                    {
+                        var list = new List<NameValuePairArgs>(settings)
+                        {
+                            new NameValuePairArgs
+                            {
+                                Name = "ENVIRONMENT",
+                                Value = "staging",
+                            },
+                        };
+                        return list;
+                    }),
+                },
+                HttpsOnly = true,
+            }, new CustomResourceOptions { Parent = App });
+
             // Register outputs
             var outputs = new Dictionary<string, object?>
             {
                 ["appServicePlanName"] = AppServicePlan.Name,
                 ["appName"] = App.Name,
                 ["appUrl"] = App.DefaultHostName.Apply(h => $"https://{h}"),
+                ["stagingSlotName"] = stagingSlot.Name,
+                ["stagingSlotUrl"] = stagingSlot.DefaultHostName.Apply(h => $"https://{h}"),
             };
 
             RegisterOutputs(outputs);
